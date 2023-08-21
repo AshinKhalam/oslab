@@ -1,0 +1,69 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <semaphore.h>
+sem_t mutex = 1;
+sem_t full = 0;
+sem_t empty = 10;
+int x = 0;
+void producer()
+{
+ mutex=wait(mutex);
+ full=signal(full);
+ empty=wait(empty);
+ x++;
+ printf("\nProducer produces %d",x);
+ mutex=signal(mutex);
+}
+void consumer()
+{
+ mutex=wait(mutex);
+ full=wait(full);
+ empty=signal(empty);
+ printf("\nConsumer consumes %d",x);
+ x--;
+ mutex=signal(mutex);
+}
+int wait(int s)
+{
+ return (--s);
+}
+int signal(int s)
+{
+ return (++s);
+}
+int main()
+{
+ int n, i;
+ for (i = 1; i > 0; i++)
+ {
+ printf("\n-Main Menu-\n1.Producer\n2.Consumer\n3.Exit");
+ printf("\nEnter your choice:");
+ scanf("%d", &n);
+ switch (n)
+ {
+ case 1:
+ if ((mutex == 1) && (empty != 0))
+ {
+ producer();
+ }
+ else
+ {
+ printf("Buffer is full!");
+ }
+ break;
+ case 2:
+ if ((mutex == 1) && (full != 0))
+ {
+ consumer();
+ }
+ else
+ {
+ printf("Buffer is empty!");
+ }
+ break;
+ case 3:
+ exit(0);
+ break;
+ }
+ }
+}
